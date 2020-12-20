@@ -25,5 +25,33 @@ public class Persona {
 
         System.out.println(charList);
 
+        for(int i = 0; i < charList.size(); i++) {
+            String age = charList.get(i);
+            age = age.replaceAll(" ", "_");
+            if (age.equals("Protagonist")) {
+                System.out.println(age);
+                Document doc2 = null;
+                try {
+                    doc2 = Jsoup.connect("https://megamitensei.fandom.com/wiki/Protagonist_(Persona_5)").get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements ageData = doc2.getElementsByAttributeValue("data-source", "age");
+                System.out.println(ageData.first().getElementsByIndexEquals(1).text());
+            } else if (age.equals("Morgana")) {
+                System.out.println(age);
+                System.out.println("Unknown");
+            } else {
+                System.out.println(age);
+                Document doc2 = null;
+                try {
+                    doc2 = Jsoup.connect("https://megamitensei.fandom.com/wiki/" + age).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements ageData = doc2.getElementsByAttributeValue("data-source", "age");
+                System.out.println(ageData.first().getElementsByIndexEquals(1).text());
+            }
+        }
     }
 }
