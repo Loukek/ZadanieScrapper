@@ -94,8 +94,42 @@ public class Persona {
                 heightList.add(height1);
             }
         }
+
+        ArrayList<String> arcanaList = new ArrayList<String>();
+
+        for(int i = 0; i < charList.size(); i++) {
+            String arcana = charList.get(i);
+            arcana = arcana.replaceAll(" ", "_");
+            if (arcana.equals("Protagonist")) {
+                Document doc4 = null;
+                try {
+                    doc4 = Jsoup.connect("https://megamitensei.fandom.com/wiki/Protagonist_(Persona_5)").get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Elements arcanaData = doc4.getElementsByAttributeValue("data-source", "arcana");
+                String arcana1 = arcanaData.first().getElementsByIndexEquals(1).text();
+                arcana1 = arcana1.replace("(P5R) ", "");
+                arcanaList.add(arcana1);
+            } else if (arcana.equals("Morgana")) {
+                arcanaList.add("Magician");
+            } else {
+                Document doc4 = null;
+                try {
+                    doc4 = Jsoup.connect("https://megamitensei.fandom.com/wiki/" + arcana).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements arcanaData = doc4.getElementsByAttributeValue("data-source", "arcana");
+                String arcana1 = arcanaData.first().getElementsByIndexEquals(1).text();
+                arcanaList.add(arcana1);
+            }
+        }
+
         System.out.println(ageList);
         System.out.println(heightList);
+        System.out.println(arcanaList);
 
 
     }
