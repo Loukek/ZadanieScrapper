@@ -1,9 +1,14 @@
+import org.apache.poi.ss.formula.functions.Column;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -166,8 +171,53 @@ public class Persona {
         System.out.println(arcanaList);
         System.out.println(weaponList);
 
+        class ExcelMain{
+            private void createAndSaveExcel() throws IOException {
+                Workbook xlsxWorkbook = new XSSFWorkbook();
+                Sheet sheet1 = xlsxWorkbook.createSheet("Dane postaci");
+                Row row1 = sheet1.createRow(0);
+                for(int i = 0; i < charList.size(); i++){
+                    String name = charList.get(i);
+                    row1.createCell(i+1).setCellValue(name);
+                    sheet1.autoSizeColumn(i+1);
+                }
+                Row row2 = sheet1.createRow(1);
+                row2.createCell(0).setCellValue("Age");
+                for(int i = 0; i < ageList.size(); i++){
+                    String ages = ageList.get(i);
+                    row2.createCell(i+1).setCellValue(ages);
+                }
+
+                Row row3 = sheet1.createRow(2);
+                row3.createCell(0).setCellValue("Height");
+                for(int i = 0; i < heightList.size(); i++){
+                    String heights = heightList.get(i);
+                    row3.createCell(i+1).setCellValue(heights);
+                }
+
+                Row row4 = sheet1.createRow(3);
+                row4.createCell(0).setCellValue("Arcana");
+                for(int i = 0; i < arcanaList.size(); i++){
+                    String arcanas = arcanaList.get(i);
+                    row4.createCell(i+1).setCellValue(arcanas);
+                }
+
+                Row row5 = sheet1.createRow(4);
+                row5.createCell(0).setCellValue("Weapon");
+                for(int i = 0; i < weaponList.size(); i++){
+                    String weapons = weaponList.get(i);
+                    row5.createCell(i+1).setCellValue(weapons);
+                    sheet1.autoSizeColumn(i+1);
+                }
+
+                xlsxWorkbook.write(new FileOutputStream("Character_data.xlsx"));
+            }
+        }
+
         ExcelMain excelMain = new ExcelMain();
         excelMain.createAndSaveExcel();
+
     }
+
 
 }
