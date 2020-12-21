@@ -127,9 +127,42 @@ public class Persona {
             }
         }
 
+        ArrayList<String> weaponList = new ArrayList<String>();
+
+        for(int i = 0; i < charList.size(); i++) {
+            String weapon = charList.get(i);
+            weapon = weapon.replaceAll(" ", "_");
+            if (weapon.equals("Protagonist")) {
+                Document doc5 = null;
+                try {
+                    doc5 = Jsoup.connect("https://megamitensei.fandom.com/wiki/Protagonist_(Persona_5)").get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Elements weaponData = doc5.getElementsByAttributeValue("data-source", "ranged");
+                String weapon1 = weaponData.first().getElementsByIndexEquals(1).text();
+                weaponList.add(weapon1);
+            } else if(weapon.equals("Futaba_Sakura")){
+                weaponList.add("No weapons");
+            } else {
+                Document doc5 = null;
+                try {
+                    doc5 = Jsoup.connect("https://megamitensei.fandom.com/wiki/" + weapon).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements weaponData = doc5.getElementsByAttributeValue("data-source", "ranged");
+                String weapon1 = weaponData.first().getElementsByIndexEquals(1).text();
+                weapon1 = weapon1.replace("[3]", "");
+                weaponList.add(weapon1);
+            }
+        }
+
         System.out.println(ageList);
         System.out.println(heightList);
         System.out.println(arcanaList);
+        System.out.println(weaponList);
 
 
     }
