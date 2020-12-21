@@ -1,3 +1,5 @@
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -6,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Persona {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Document doc1 = null;
         try{
             doc1 = Jsoup.connect("https://megamitensei.fandom.com/wiki/List_of_Persona_5_Characters").get();
@@ -164,6 +166,8 @@ public class Persona {
         System.out.println(arcanaList);
         System.out.println(weaponList);
 
-
+        ExcelMain excelMain = new ExcelMain();
+        excelMain.createAndSaveExcel();
     }
+
 }
