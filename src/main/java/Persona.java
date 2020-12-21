@@ -7,7 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class Persona {
         Element character1 = doc1.getElementById("gallery-0");
         Elements characters1 = character1.getElementsByClass("lightbox-caption");
 
-        ArrayList<String> charList = new ArrayList<String>();
+        final ArrayList<String> charList = new ArrayList<String>();
 
         for(int i = 0; i < characters1.size(); i++){
             String name = characters1.get(i).select("a").text();
