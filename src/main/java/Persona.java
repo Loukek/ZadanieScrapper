@@ -60,7 +60,42 @@ public class Persona {
                 ageList.add(age1);
             }
         }
+
+        ArrayList<String> heightList = new ArrayList<String>();
+
+        for(int i = 0; i < charList.size(); i++) {
+            String height = charList.get(i);
+            height = height.replaceAll(" ", "_");
+            if (height.equals("Protagonist")) {
+                Document doc3 = null;
+                try {
+                    doc3 = Jsoup.connect("https://megamitensei.fandom.com/wiki/Protagonist_(Persona_5)").get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Elements heightData = doc3.getElementsByAttributeValue("data-source", "height");
+                String height1 = heightData.first().getElementsByIndexEquals(1).text();
+                heightList.add(height1);
+            } else if (height.equals("Morgana")) {
+                heightList.add("60 cm(2')");
+            } else {
+                Document doc3 = null;
+                try {
+                    doc3 = Jsoup.connect("https://megamitensei.fandom.com/wiki/" + height).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements heightData = doc3.getElementsByAttributeValue("data-source", "height");
+                String height1 = heightData.first().getElementsByIndexEquals(1).text();
+                height1 = height1.replace("[1]", "");
+                height1 = height1.replace("[4]", "");
+                height1 = height1.replace("[5]", "");
+                heightList.add(height1);
+            }
+        }
         System.out.println(ageList);
+        System.out.println(heightList);
 
 
     }
