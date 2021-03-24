@@ -1,3 +1,4 @@
+import com.mysql.cj.protocol.Resultset;
 import org.apache.poi.ss.formula.functions.Column;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -9,14 +10,23 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         Document doc1 = null;
-        try{
+        try {
             doc1 = Jsoup.connect("https://megamitensei.fandom.com/wiki/List_of_Persona_5_Characters").get();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         Element character1 = doc1.getElementById("gallery-0");
@@ -24,16 +34,16 @@ public class Main {
 
         final ArrayList<String> charList = new ArrayList<String>();
 
-        for(int i = 0; i < characters1.size(); i++){
+        for (int i = 0; i < characters1.size(); i++) {
             String name = characters1.get(i).select("a").text();
             charList.add(name);
         }
 
-        System.out.println(charList);
+        /*System.out.println(charList);*/
 
-        ArrayList<String> ageList = new ArrayList<String>();
+        final ArrayList<String> ageList = new ArrayList<String>();
 
-        for(int i = 0; i < charList.size(); i++) {
+        for (int i = 0; i < charList.size(); i++) {
             String age = charList.get(i);
             age = age.replaceAll(" ", "_");
             if (age.equals("Protagonist")) {
@@ -67,9 +77,9 @@ public class Main {
             }
         }
 
-        ArrayList<String> heightList = new ArrayList<String>();
+        final ArrayList<String> heightList = new ArrayList<String>();
 
-        for(int i = 0; i < charList.size(); i++) {
+        for (int i = 0; i < charList.size(); i++) {
             String height = charList.get(i);
             height = height.replaceAll(" ", "_");
             if (height.equals("Protagonist")) {
@@ -82,9 +92,9 @@ public class Main {
 
                 Elements heightData = doc3.getElementsByAttributeValue("data-source", "height");
                 String height1 = heightData.first().getElementsByIndexEquals(1).text();
-                heightList.add(height1);
+                heightList.add("175cm");
             } else if (height.equals("Morgana")) {
-                heightList.add("60 cm(2')");
+                heightList.add("60cm");
             } else {
                 Document doc3 = null;
                 try {
@@ -97,13 +107,17 @@ public class Main {
                 height1 = height1.replace("[1]", "");
                 height1 = height1.replace("[4]", "");
                 height1 = height1.replace("[5]", "");
+                height1 = height1.replace("[5]", "");
+                height1 = height1.replaceAll("\\(.*?\\)", "");
+                height1 = height1.replaceAll("\\(.*?\\)", "");
+                height1 = height1.replaceAll(" ", "");
                 heightList.add(height1);
             }
         }
 
-        ArrayList<String> arcanaList = new ArrayList<String>();
+        final ArrayList<String> arcanaList = new ArrayList<String>();
 
-        for(int i = 0; i < charList.size(); i++) {
+        for (int i = 0; i < charList.size(); i++) {
             String arcana = charList.get(i);
             arcana = arcana.replaceAll(" ", "_");
             if (arcana.equals("Protagonist")) {
@@ -133,9 +147,9 @@ public class Main {
             }
         }
 
-        ArrayList<String> weaponList = new ArrayList<String>();
+        final ArrayList<String> weaponList = new ArrayList<String>();
 
-        for(int i = 0; i < charList.size(); i++) {
+        for (int i = 0; i < charList.size(); i++) {
             String weapon = charList.get(i);
             weapon = weapon.replaceAll(" ", "_");
             if (weapon.equals("Protagonist")) {
@@ -149,7 +163,7 @@ public class Main {
                 Elements weaponData = doc5.getElementsByAttributeValue("data-source", "ranged");
                 String weapon1 = weaponData.first().getElementsByIndexEquals(1).text();
                 weaponList.add(weapon1);
-            } else if(weapon.equals("Futaba_Sakura")){
+            } else if (weapon.equals("Futaba_Sakura")) {
                 weaponList.add("No weapons");
             } else {
                 Document doc5 = null;
@@ -165,12 +179,12 @@ public class Main {
             }
         }
 
-        System.out.println(ageList);
+        /*System.out.println(ageList);
         System.out.println(heightList);
         System.out.println(arcanaList);
-        System.out.println(weaponList);
+        System.out.println(weaponList);*/
 
-        class ExcelMain{
+        /*class ExcelMain{
             private void createAndSaveExcel() throws IOException {
                 Workbook xlsxWorkbook = new XSSFWorkbook();
                 Sheet sheet1 = xlsxWorkbook.createSheet("Dane postaci");
@@ -214,9 +228,70 @@ public class Main {
         }
 
         ExcelMain excelMain = new ExcelMain();
-        excelMain.createAndSaveExcel();
+        excelMain.createAndSaveExcel();*/
+        System.out.println("Czas pobrania wszystkich danych: " + LocalTime.now() + "\n");
 
+
+        Connection conn = DBConnector.connect();
+
+
+        Scanner userInput = new Scanner(System.in);
+        PreparedStatement loginSystem = conn.prepareStatement("SELECT login, password FROM user");
+        ResultSet logger = loginSystem.executeQuery();
+        while (logger.next()) {
+            String login = logger.getString("login");
+            String password = logger.getString("password");
+            System.out.println("Wpisz login: ");
+            if (login.equals(userInput.next())) {
+                System.out.println("Wpisz hasło: ");
+                if(password.equals(userInput.next())) {
+                    System.out.println("Wybierz co chcesz zrobić (Wpisz 1 lub 2): \n 1. Pobierz dane \n 2. Wyświetl dane z bazy");
+                    int choice = userInput.nextInt();
+
+
+                    if (choice == 1) {
+                        for (int i = 0; i < charList.size(); i++) {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+                            LocalDateTime now1 = LocalDateTime.now();
+                            String formatDateTime = now1.format(formatter);
+                            PreparedStatement stmt = conn.prepareStatement(
+                                    "INSERT IGNORE INTO characters " +
+                                            "(id, name, age, height, arcana, weapon, time) " +
+                                            "VALUES(" + (i+1) +", '" + charList.get(i) + "', '" + ageList.get(i) + "', '" + heightList.get(i) + "' , '" + arcanaList.get(i) + "', '" + weaponList.get(i) + "', '" + formatDateTime + "')");
+                            stmt.executeUpdate();
+                            LocalDateTime now2 = LocalDateTime.now();
+                            String formatDateTime2 = now2.format(formatter);
+                            PreparedStatement stmt2 = conn.prepareStatement("UPDATE characters SET time = '" + formatDateTime2 + "' WHERE characters.id = " + i + ";");
+                            stmt2.executeUpdate();
+                        }
+                    } else if (choice == 2) {
+                        PreparedStatement stmt = conn.prepareStatement("SELECT id, name, age, height, arcana, weapon, time FROM characters");
+                        ResultSet RS = stmt.executeQuery();
+                        while (RS.next()) {
+                            String id = RS.getString("id");
+                            String name = RS.getString("name");
+                            String age = RS.getString("age");
+                            String height = RS.getString("height");
+                            String arcana = RS.getString("arcana");
+                            String weapon = RS.getString("weapon");
+                            String time = RS.getString("time");
+
+                            System.out.println(id + ":");
+                            System.out.println(name + ", " + age + ", " + height + ", " + arcana + ", " + weapon + ", " + time);
+                        }
+                    } else {
+                        System.out.println("Podaj prawidłową liczbę.");
+                        return;
+                    }
+                }else{
+                    System.out.println("Błędne hasło!");
+                    return;
+                }
+            }else{
+                System.out.println("Błędny login!");
+                return;
+            }
+        }
     }
-
 
 }
